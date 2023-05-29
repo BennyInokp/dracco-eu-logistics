@@ -9,10 +9,14 @@ import (
 	"github.com/dracco-eu-logistics/app/utilities"
 )
 
+// Parcel represents a parcel
 type Parcel struct {
-	ID                 string     `json:"id"`             // Unique identifier for the parcel
-	CompanyName        string     `json:"companyName"`    // Name of the company associated with the parcel
-	CompanyID          string     `json:"companyID"`      // ID of the company associated with the parcel
+	ID           string `json:"id"`           // Unique identifier for the parcel
+	CompanyName  string `json:"companyName"`  // Name of the company associated with the parcel
+	CompanyID    int64  `json:"companyID"`    // ID of the company associated with the parcel
+	CompanyPhone string `json:"companyPhone"` // Phone number of the company associated with the parcel
+	TaxID        string `json:"taxId"`
+
 	Description        string     `json:"description"`    // Description of the parcel
 	Weight             float64    `json:"weight"`         // Weight of the parcel
 	Dimensions         Dimensions `json:"dimensions"`     // Dimensions (length, width, height) of the parcel
@@ -28,6 +32,7 @@ type Parcel struct {
 	IsCompleted        bool       `json:"isCompleted"`    // Flag indicating whether the parcel has been completed
 }
 
+// location represents a location
 type Location struct {
 	Address   string `json:"address"`   // Street address of the location
 	City      string `json:"city"`      // City where the location is situated
@@ -36,28 +41,34 @@ type Location struct {
 	Latitude  string `json:"latitude"`  // Latitude of the location
 }
 
+// Country represents a country
 type Country struct {
 	Name string `json:"name"` // Name of the country
 	Code string `json:"code"` // ISO code representing the country
 }
 
+// Dimensions represents the dimensions of an object
 type Dimensions struct {
 	Length float64 `json:"length"` // Length dimension of an object
 	Width  float64 `json:"width"`  // Width dimension of an object
 	Height float64 `json:"height"` // Height dimension of an object
 }
 
+// MD5ParcelID generates an MD5 hash of the parcel key
 func MD5ParcelID(parcelKey string) string {
 	hash := md5.Sum([]byte(parcelKey))
 	return hex.EncodeToString(hash[:])
 }
 
-func NewParcel(CompanyName, CompanyID string) *Parcel {
+// NewParcel creates a new parcel
+func NewParcel(CompanyName string, CompanyID int64) *Parcel {
 	return &Parcel{
 		CompanyName: CompanyName,
 		CompanyID:   CompanyID,
 	}
 }
+
+// setcountry sets the country of the parcel
 func (parcel *Parcel) SetCountry() *Parcel {
 	parcel.Country = Country{
 		Name: "Spain",
@@ -66,31 +77,37 @@ func (parcel *Parcel) SetCountry() *Parcel {
 	return parcel
 }
 
+// SetDescription sets the description of the parcel
 func (parcel *Parcel) SetDescription(description string) *Parcel {
 	parcel.Description = description
 	return parcel
 }
 
+// SetParcelID sets the ID of the parcel
 func (parcel *Parcel) SetParcelID() *Parcel {
 	parcel.ID = MD5ParcelID(utilities.GenerateUniqueID("parcel"))
 	return parcel
 }
 
+// SetPickUpLocation sets the pick up location for the parcel
 func (parcel *Parcel) SetPickUpLocation(PickUp Location) *Parcel {
 	parcel.PickupLocation = PickUp
 	return parcel
 }
 
+// SetDropOffDestination sets the drop off destination for the parcel
 func (parcel *Parcel) SetDropOffDestination(Destination Location) *Parcel {
 	parcel.DropOffDestination = Destination
 	return parcel
 }
 
+// setEuPalet sets the IsEuPalet flag to true
 func (parcel *Parcel) SetEuPalet() *Parcel {
 	parcel.IsEuPalet = true
 	return parcel
 }
 
+// SetDimensions sets the dimensions of the parcel
 func (parcel *Parcel) SetDimensions(length, width, height float64) *Parcel {
 	if parcel.IsEuPalet {
 		parcel.Dimensions = Dimensions{
@@ -108,43 +125,50 @@ func (parcel *Parcel) SetDimensions(length, width, height float64) *Parcel {
 	return parcel
 }
 
+// SetWeight sets the weight of the parcel
 func (parcel *Parcel) SetWeight(weight float64) *Parcel {
 	parcel.Weight = weight
 	return parcel
 }
 
+// SetPickUpDate sets the pick up date for the parcel
 func (parcel *Parcel) SetPickUpDate(date time.Time) *Parcel {
 	parcel.PickUpDate = date
 	return parcel
 }
 
+// SetDropOffDate sets the drop off date for the parcel
 func (parcel *Parcel) SetDropOffDate(date time.Time) *Parcel {
 	parcel.DropOffDate = date
 	return parcel
 }
 
+// SetIsAccepted sets the IsAccepted flag to true
 func (parcel *Parcel) SetIsAccepted() *Parcel {
 	parcel.IsAccepted = true
 	return parcel
 }
 
+// SetIsCompleted sets the IsCompleted flag to true
 func (parcel *Parcel) SetIsCompleted() *Parcel {
 	parcel.IsCompleted = true
 	return parcel
 }
 
+// SetOfferPrice sets the offered price for transporting the parcel
 func (parcel *Parcel) SetOfferPrice(price float64) *Parcel {
 	parcel.OfferPrice = price
 	return parcel
 }
 
+// SetTransporterID sets the ID of the transporter assigned to the parcel
 func (parcel *Parcel) SetTransporterID(ID int64) *Parcel {
 	parcel.TransporterID = ID
 	return parcel
 }
 
 // Create creates a new parcel and performs any necessary validations or business logic checks
-func (parcel *Parcel) Create() (*Parcel, []error) {
+func (parcel *Parcel) Save() (*Parcel, []error) {
 	// Perform any necessary validations or business logic checks before creating the parcel
 	// For example, checking if the required fields are provided, validating dimensions, etc.
 	errorslist := []error{}

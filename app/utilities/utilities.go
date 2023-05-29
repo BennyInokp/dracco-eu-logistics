@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"regexp"
 	"time"
 )
 
@@ -24,4 +25,16 @@ func GenerateUniqueID(baseString string) string {
 func PrettyPrintStruct(i interface{}) string {
 	s, _ := json.MarshalIndent(i, "", "\t")
 	return string(s)
+}
+
+func ValidateEmail(email string) bool {
+	// Regular expression pattern for email validation
+	// This pattern follows the RFC 5322 standard for email addresses
+	pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+
+	// Compile the regular expression pattern
+	regex := regexp.MustCompile(pattern)
+
+	// Match the email against the pattern
+	return regex.MatchString(email)
 }
