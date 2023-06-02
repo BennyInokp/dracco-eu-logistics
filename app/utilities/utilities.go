@@ -38,3 +38,9 @@ func ValidateEmail(email string) bool {
 	// Match the email against the pattern
 	return regex.MatchString(email)
 }
+
+func RandomNumber() int {
+	// Generate a random number
+	number := rand.Intn(9999999999)
+	return number
+}

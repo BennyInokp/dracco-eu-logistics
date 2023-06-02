@@ -12,6 +12,7 @@ type Customer struct {
 	CustomerName  string `json:"customerName"`
 	CustomerEmail string `json:"customerEmail"`
 	CustomerPhone string `json:"customerPhone"`
+	TaxID         string `json:"taxId"`
 
 	Password      string `json:"password"`
 	IsTransporter bool   `json:"isTransporter"`

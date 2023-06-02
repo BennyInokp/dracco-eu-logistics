@@ -1,8 +1,6 @@
 package models
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"time"
 
@@ -11,34 +9,33 @@ import (
 
 // Parcel represents a parcel
 type Parcel struct {
-	ID           string `json:"id"`           // Unique identifier for the parcel
-	CompanyName  string `json:"companyName"`  // Name of the company associated with the parcel
-	CompanyID    int64  `json:"companyID"`    // ID of the company associated with the parcel
-	CompanyPhone string `json:"companyPhone"` // Phone number of the company associated with the parcel
-	TaxID        string `json:"taxId"`
+	ID        int   `json:"id"`        // Unique identifier for the parcel
+	CompanyID int64 `json:"companyID"` // ID of the company associated with the parcel
 
-	Description        string     `json:"description"`    // Description of the parcel
-	Weight             float64    `json:"weight"`         // Weight of the parcel
-	Dimensions         Dimensions `json:"dimensions"`     // Dimensions (length, width, height) of the parcel
-	PickupLocation     Location   `json:"pickupLocation"` // Location where the parcel is picked up
-	PickUpDate         time.Time  `json:"pickUpDate"`     // Date when the parcel is picked up
-	DropOffDate        time.Time  `json:"dropOffDate"`    // Date when the parcel is dropped off
-	DropOffDestination Location   `json:"destination"`    // Destination location for the parcel
-	IsEuPalet          bool       `json:"IsEuPalet"`      // Flag indicating whether the parcel is an EU pallet
-	OfferPrice         float64    `json:"offerPrice"`     // Offered price for transporting the parcel
-	Country            Country    `json:"country"`        // Country where the parcel is situated
-	TransporterID      int64      `json:"transporterId"`  // ID of the transporter assigned to the parcel
-	IsAccepted         bool       `json:"isAccepted"`     // Flag indicating whether the parcel has been accepted
-	IsCompleted        bool       `json:"isCompleted"`    // Flag indicating whether the parcel has been completed
+	Description        string     `json:"description"`      // Description of the parcel
+	Weight             float64    `json:"weight"`           // Weight of the parcel
+	Dimensions         Dimensions `json:"dimensions"`       // Dimensions (length, width, height) of the parcel
+	PickupLocation     Location   `json:"pickupLocation"`   // Location where the parcel is picked up
+	PickUpDate         time.Time  `json:"pickUpDate"`       // Date when the parcel is picked up
+	DropOffDate        time.Time  `json:"dropOffDate"`      // Date when the parcel is dropped off
+	DropOffDestination Location   `json:"destination"`      // Destination location for the parcel
+	IsEuPalet          bool       `json:"IsEuPalet"`        // Flag indicating whether the parcel is an EU pallet
+	OfferPrice         float64    `json:"offerPrice"`       // Offered price for transporting the parcel
+	Country            Country    `json:"country"`          // Country where the parcel is situated
+	TransporterID      int64      `json:"transporterId"`    // ID of the transporter assigned to the parcel
+	IsAccepted         bool       `json:"isAccepted"`       // Flag indicating whether the parcel has been accepted
+	IsCompleted        bool       `json:"isCompleted"`      // Flag indicating whether the parcel has been completed
+	Distance           float64    `json:"distance"`         // Distance between the pick up and drop off locations
+	UpdatedLocations   []Location `json:"updatedLocations"` // List of updated locations for the parcel
 }
 
 // location represents a location
 type Location struct {
-	Address   string `json:"address"`   // Street address of the location
-	City      string `json:"city"`      // City where the location is situated
-	ZipCode   string `json:"zipCode"`   // Postal/ZIP code of the location
-	Longitude string `json:"longitude"` // Longitude of the location
-	Latitude  string `json:"latitude"`  // Latitude of the location
+	Address   string  `json:"address"`   // Street address of the location
+	City      string  `json:"city"`      // City where the location is situated
+	ZipCode   string  `json:"zipCode"`   // Postal/ZIP code of the location
+	Longitude float64 `json:"longitude"` // Longitude of the location
+	Latitude  float64 `json:"latitude"`  // Latitude of the location
 }
 
 // Country represents a country
@@ -55,16 +52,15 @@ type Dimensions struct {
 }
 
 // MD5ParcelID generates an MD5 hash of the parcel key
-func MD5ParcelID(parcelKey string) string {
-	hash := md5.Sum([]byte(parcelKey))
-	return hex.EncodeToString(hash[:])
-}
+// func MD5ParcelID(parcelKey string) string {
+// 	hash := md5.Sum([]byte(parcelKey))
+// 	return hex.EncodeToString(hash[:])
+// }
 
 // NewParcel creates a new parcel
-func NewParcel(CompanyName string, CompanyID int64) *Parcel {
+func NewParcel(CompanyID int64) *Parcel {
 	return &Parcel{
-		CompanyName: CompanyName,
-		CompanyID:   CompanyID,
+		CompanyID: CompanyID,
 	}
 }
 
@@ -85,7 +81,7 @@ func (parcel *Parcel) SetDescription(description string) *Parcel {
 
 // SetParcelID sets the ID of the parcel
 func (parcel *Parcel) SetParcelID() *Parcel {
-	parcel.ID = MD5ParcelID(utilities.GenerateUniqueID("parcel"))
+	parcel.ID = utilities.RandomNumber()
 	return parcel
 }
 
@@ -164,6 +160,35 @@ func (parcel *Parcel) SetOfferPrice(price float64) *Parcel {
 // SetTransporterID sets the ID of the transporter assigned to the parcel
 func (parcel *Parcel) SetTransporterID(ID int64) *Parcel {
 	parcel.TransporterID = ID
+	return parcel
+}
+
+// SetDistance sets the distance between the pick up and drop off locations
+func (parcel *Parcel) SetDistance(distance float64) *Parcel {
+	parcel.Distance = distance
+	return parcel
+}
+
+// SetGeo sets the longitude and latitude
+func (parcel *Parcel) SetGeo() *Parcel {
+	// Set the longitude and latitude of the pick up location
+	// Example: "40.416775,-3.703790"
+	pickupGeoCoord := HttpGeoHereRequest(parcel.PickupLocation.Address)
+	parcel.PickupLocation.Longitude = pickupGeoCoord.Longitude
+	parcel.PickupLocation.Latitude = pickupGeoCoord.Latitude
+	parcel.PickupLocation.Address = pickupGeoCoord.Address
+	parcel.PickupLocation.City = pickupGeoCoord.City
+	parcel.PickupLocation.ZipCode = pickupGeoCoord.ZipCode
+
+	// Set the longitude and latitude of the drop off location
+	// Example: "40.416775,-3.703790"
+	dropOffGeoCoord := HttpGeoHereRequest(parcel.DropOffDestination.Address)
+	parcel.DropOffDestination.Longitude = dropOffGeoCoord.Longitude
+	parcel.DropOffDestination.Latitude = dropOffGeoCoord.Latitude
+	parcel.DropOffDestination.Address = dropOffGeoCoord.Address
+	parcel.DropOffDestination.City = dropOffGeoCoord.City
+	parcel.DropOffDestination.ZipCode = dropOffGeoCoord.ZipCode
+
 	return parcel
 }
 

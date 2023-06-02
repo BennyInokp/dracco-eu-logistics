@@ -8,7 +8,7 @@ import (
 )
 
 type Transporter struct {
-	ID               int64  `json:"id"`
+	TransporterID    int64  `json:"id"`
 	TransporterName  string `json:"transporterName"`
 	TransporterEmail string `json:"transporterEmail"`
 	TransporterPhone string `json:"transporterPhone"`
@@ -37,7 +37,7 @@ func NewTransporter() *Transporter {
 }
 
 func (transporter *Transporter) SetTransporterID(id int64) *Transporter {
-	transporter.ID = id
+	transporter.TransporterID = id
 	return transporter
 }
 
