@@ -41,6 +41,6 @@ func ValidateEmail(email string) bool {
 
 func RandomNumber() int {
 	// Generate a random number
-	number := rand.Intn(9999999999)
+	number := rand.Intn(9999999)
 	return number
 }
