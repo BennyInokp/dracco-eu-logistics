@@ -3,19 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/dracco-eu-logistics/app/models"
-	"github.com/dracco-eu-logistics/app/utilities"
+	"github.com/dracco-eu-logistics/api/user"
 )
 
 func main() {
-	customer, errs := models.NewCustomer().
-		SetCustomerID().
-		SetCustomerName("Naoufal Dahouli").
-		SetCustomerEmail("neufSal79@gmail.com").
-		SetCustomerPhone("90000000").
-		SetCustomerIsTransporter().
-		SetCustomerPassword("9876543").
-		Save()
 
-	log.Println(utilities.PrettyPrintStruct(customer), errs)
+	// Register a new user
+	user := user.NewUser()
+	log.Println(user)
 }
